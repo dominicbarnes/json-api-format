@@ -1,0 +1,16 @@
+{
+  "name": "json-api-format",
+  "version": "0.0.0",
+  "description": "Outputs objects in JSON:API format",
+  "dependencies": {
+    "clone": "^1.0.2",
+    "extend": "^3.0.0"
+  },
+  "devDependencies": {
+    "chai": "^3.1.0",
+    "mocha": "^2.2.5"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
+}
