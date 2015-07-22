@@ -1,6 +1,6 @@
 {
   "name": "json-api-format",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Outputs objects in JSON:API format",
   "dependencies": {
     "clone": "^1.0.2",
@@ -11,6 +11,7 @@
     "mocha": "^2.2.5"
   },
   "scripts": {
+    "hooks": "cp hooks/* .git/hooks",
     "test": "mocha"
   }
 }
