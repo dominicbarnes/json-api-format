@@ -4,6 +4,8 @@
 > This API is pretty complex, so I expect to make big changes after actually
 > using it in a project.
 
+![Travis Build Status](https://img.shields.io/travis/dominicbarnes/json-api-format.svg)
+
 ## Install
 
 ```sh
