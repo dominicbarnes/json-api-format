@@ -250,7 +250,7 @@ describe('jsonapi(base)', function () {
     });
   });
 
-  describe.skip('.include(resource)', function () {
+  describe('.include(resource)', function () {
     it('should not have included at all if unused', function () {
       var json = jsonapi().toObject();
 
@@ -276,6 +276,18 @@ describe('jsonapi(base)', function () {
       assert.throws(function () {
         jsonapi().include([ {}, {} ]);
       }, TypeError);
+    });
+
+    it('should render the resource objects', function () {
+      var response = jsonapi();
+      var resource = response.resource('author', 1);
+      var json = response
+        .include(resource)
+        .toObject();
+
+      assert.deepEqual(json.included, [
+        { type: 'author', id: '1' }
+      ]);
     });
   });
 
@@ -480,6 +492,70 @@ describe('jsonapi(base)', function () {
         assert.notProperty(json, 'meta');
       });
     });
+
+    describe('.relationship(type, rel)', function () {
+      it('should not include relationships at all if unset', function () {
+        var json = jsonapi()
+          .resource('article', 1)
+          .toObject();
+
+        assert.notProperty(json, 'relationships');
+      });
+
+      it('should add a relationship object for the given type', function () {
+        var response = jsonapi();
+
+        var author = response.resource('author', 2);
+        var authorRel = response.relationship()
+          .data(author)
+          .link('self', '/articles/1/relationships/author')
+          .link('related', '/articles/1/author');
+
+        var json = response.resource('article', 1)
+          .relationship('author', authorRel)
+          .link('self', '/articles/1')
+          .toObject();
+
+        assert.deepEqual(json.relationships, {
+          author: {
+            data: { type: 'author', id: '2' },
+            links: {
+              self: '/articles/1/relationships/author',
+              related: '/articles/1/author'
+            }
+          }
+        })
+      });
+
+      it('should add a relationship object with an array of resources', function () {
+        var response = jsonapi();
+
+        var comment1 = response.resource('comment', 1);
+        var comment2 = response.resource('comment', 2);
+        var commentsRel = response.relationship()
+          .data([ comment1, comment2 ])
+          .link('self', '/articles/1/relationships/comments')
+          .link('related', '/articles/1/comments');
+
+        var json = response.resource('article', 1)
+          .relationship('comments', commentsRel)
+          .link('self', '/articles/1')
+          .toObject();
+
+        assert.deepEqual(json.relationships, {
+          comments: {
+            data: [
+              { type: 'comment', id: '1' },
+              { type: 'comment', id: '2' }
+            ],
+            links: {
+              self: '/articles/1/relationships/comments',
+              related: '/articles/1/comments'
+            }
+          }
+        })
+      });
+    });
   });
 
   describe('.relationship()', function () {
@@ -493,23 +569,14 @@ describe('jsonapi(base)', function () {
       });
 
       it('should add a data object with a resource linkage object', function () {
-        var json = jsonapi()
-          .relationship()
-          .data('article', '1')
-          .toObject();
+        var response = jsonapi();
 
-        assert.deepEqual(json, {
-          data: {
-            type: 'article',
-            id: '1'
-          }
-        });
-      });
+        var resource = response
+          .resource('article', 1)
+          .link('self', 'http://google.com/'); // extras should be excluded
 
-      it('should cast the type and id to strings', function () {
-        var json = jsonapi()
-          .relationship()
-          .data('article', 1)
+        var json = response.relationship()
+          .data(resource)
           .toObject();
 
         assert.deepEqual(json, {
